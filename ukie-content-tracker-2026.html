@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audiobooks UKIE – Content Tracker 2026</title>
+    <style>
+        :root {
+            --accent: #C8A84E;
+            --accent-hover: #B89740;
+            --navy: #192A51;
+            --navy-light: #243B6A;
+            --cream: #F0EBE0;
+            --cream-dark: #E5DDD0;
+            --card-bg: #1E2D52;
+            --page-bg: #F0EBE0;
+            --burgundy: #5A1A30;
+            --plum: #2E1A2E;
+            --forest: #1A4A3A;
+            --teal: #1A5045;
+            --always-on: #8FAEC4;
+            --high-prio-fiction: #6B3A7D;
+            --high-prio-nonfiction: #C45B3A;
+            --book-to-screen: #1A5045;
+            --sab-prio: #3D6FA8;
+            --local-moment: #C8A84E;
+            --global-campaign: #8B2240;
+            --social-campaign: #5C8A4E;
+            --events: #9C6B30;
+            --border: #D5CFC3;
+            --text: #192A51;
+            --text-muted: #6B7A8D;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--page-bg); color: var(--text);
+        }
+
+        /* ── Header ─────────────────────────────────────── */
+        .header {
+            background: var(--navy); padding: 24px 32px;
+            display: flex; align-items: center; gap: 16px;
+            border-bottom: 1px solid var(--navy-light);
+        }
+        .header svg { flex-shrink: 0; }
+        .header h1 { font-size: 22px; font-weight: 700; color: var(--cream); }
+        .header p  { font-size: 13px; color: #8A9BB5; margin-top: 2px; }
+
+        /* ── Legend ──────────────────────────────────────── */
+        .legend-bar {
+            background: var(--cream); padding: 14px 32px;
+            display: flex; flex-wrap: wrap; gap: 14px;
+            border-bottom: 1px solid var(--border); align-items: center;
+        }
+        .legend-group-label {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .5px; color: #999; margin-right: 4px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+        .legend-dot  { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+        .legend-divider { width: 1px; height: 18px; background: var(--border); }
+
+        /* ── Filters ────────────────────────────────────── */
+        .filters {
+            padding: 14px 32px; display: flex; flex-wrap: wrap; gap: 8px;
+            background: var(--cream); border-bottom: 1px solid var(--border);
+        }
+        .filter-btn {
+            padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
+            background: transparent; color: var(--text-muted); font-size: 11px;
+            cursor: pointer; transition: all .15s;
+        }
+        .filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .filter-btn.active { background: var(--navy); color: var(--cream); border-color: var(--navy); font-weight: 600; }
+
+        /* ── Toolbar ────────────────────────────────────── */
+        .toolbar {
+            background: var(--cream-dark); border-bottom: 1px solid var(--border);
+            padding: 10px 32px; display: flex; gap: 10px; align-items: center;
+        }
+        .toolbar button {
+            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+            background: transparent; color: var(--text-muted); font-size: 11px;
+            cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all .15s;
+        }
+        .toolbar button:hover { border-color: var(--navy); color: var(--navy); }
+        .toolbar button.primary { background: var(--accent); color: var(--navy); border-color: var(--accent); font-weight: 600; }
+        .toolbar button.primary:hover { background: var(--accent-hover); }
+        .toolbar .spacer { flex: 1; }
+        .toolbar .stats  { font-size: 11px; color: #999; }
+
+        /* ── Month sections ─────────────────────────────── */
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px 32px; }
+        .month-section { margin-bottom: 32px; }
+        .month-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; cursor: pointer; user-select: none;
+            border-bottom: 2px solid var(--navy); margin-bottom: 16px;
+        }
+        .month-header h2 { font-size: 20px; font-weight: 700; color: var(--navy); }
+        .month-header .count {
+            background: var(--accent); color: var(--navy);
+            padding: 2px 10px; border-radius: 10px; font-size: 11px;
+            font-weight: 700; margin-left: 10px;
+        }
+        .month-header .toggle { font-size: 11px; color: #999; }
+
+        /* ── Card grid ──────────────────────────────────── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .card-grid.collapsed { display: none; }
+
+        /* ── Card ───────────────────────────────────────── */
+        .card {
+            background: var(--card-bg); border-radius: 14px;
+            padding: 20px; position: relative;
+            border: 1px solid var(--navy-light); transition: all .15s;
+            display: flex; flex-direction: column; gap: 0;
+        }
+        .card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(25,42,81,.25); }
+
+        .card-badges {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+        }
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: .5px; white-space: nowrap;
+        }
+        .badge.always-on           { background: var(--always-on); color: #000; }
+        .badge.high-prio-fiction    { background: var(--high-prio-fiction); color: #fff; }
+        .badge.high-prio-nonfiction { background: var(--high-prio-nonfiction); color: #fff; }
+        .badge.book-to-screen       { background: var(--book-to-screen); color: #fff; }
+        .badge.sab-prio             { background: var(--sab-prio); color: #fff; }
+        .badge.local-moment         { background: var(--local-moment); color: #000; }
+        .badge.global-campaign      { background: var(--global-campaign); color: #fff; }
+        .badge.social-campaign      { background: var(--social-campaign); color: #fff; }
+        .badge.events               { background: var(--events); color: #fff; }
+
+        .card-cover-row {
+            display: flex; gap: 16px; align-items: flex-end;
+            margin-bottom: 18px;
+        }
+        .card-cover {
+            width: 120px; height: 120px; border-radius: 8px;
+            object-fit: cover; flex-shrink: 0; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+        }
+        .card-cover-placeholder {
+            width: 120px; height: 120px; border-radius: 8px;
+            border: 2px dashed #4A5A7A; display: flex; align-items: center;
+            justify-content: center; color: #4A5A7A; font-size: 28px;
+            cursor: pointer; flex-shrink: 0; transition: all .15s;
+        }
+        .card-cover-placeholder:hover { border-color: var(--accent); color: var(--accent); }
+
+        .card-date {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: flex-end; padding-bottom: 4px;
+        }
+        .card-date-day {
+            font-size: 42px; font-weight: 800; line-height: 1;
+            color: var(--accent);
+        }
+        .card-date-month {
+            font-size: 13px; font-weight: 700; text-transform: uppercase;
+            color: #8A9BB5; letter-spacing: 1px; margin-top: 2px;
+        }
+
+        .card-info { border-top: 1px solid rgba(138,155,181,.15); padding-top: 14px; }
+
+        .card-title {
+            font-size: 18px; font-weight: 800; line-height: 1.3;
+            color: var(--cream); word-break: break-word; margin-bottom: 4px;
+        }
+        .card-author {
+            font-size: 13px; color: var(--accent); font-weight: 600;
+        }
+        .card-narrator {
+            font-size: 12px; color: #8A9BB5; font-style: italic;
+        }
+        .card-publisher {
+            font-size: 11px; color: #6B7A8D; margin-top: 2px;
+        }
+        .card-notes {
+            font-size: 11px; color: #8A9BB5; margin-top: 6px; line-height: 1.4;
+        }
+        .card-spotify-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .5px; color: #1DB954;
+            text-decoration: none; margin-top: 14px; padding: 8px 16px;
+            border: 1px solid #1DB954; border-radius: 20px;
+            transition: all .15s;
+        }
+        .card-spotify-link:hover { background: rgba(29,185,84,.1); text-decoration: none; }
+        .card-spotify-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #1DB954; flex-shrink: 0;
+        }
+
+        /* ── Card actions (top-right) ───────────────────── */
+        .card-actions {
+            position: absolute; top: 8px; right: 8px;
+            display: flex; gap: 4px; opacity: 0; transition: opacity .15s;
+        }
+        .card:hover .card-actions { opacity: 1; }
+        .card-action-btn {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: rgba(0,0,0,.6); border: none; color: #999;
+            font-size: 12px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .card-action-btn:hover { color: #fff; background: rgba(0,0,0,.8); }
+
+        /* ── Add card button ────────────────────────────── */
+        .add-card {
+            border: 1px dashed var(--border); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 200px; cursor: pointer; color: #999;
+            font-size: 13px; transition: all .15s; gap: 6px;
+            background: transparent;
+        }
+        .add-card:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Edit modal ─────────────────────────────────── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.7); z-index: 200;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--cream); border-radius: 12px; padding: 24px;
+            width: 480px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+            color: var(--navy); max-height: 90vh; overflow-y: auto;
+        }
+        .modal h3 { font-size: 16px; margin-bottom: 16px; color: var(--navy); }
+        .modal label {
+            display: block; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .5px;
+            color: #6B7A8D; margin-bottom: 4px; margin-top: 12px;
+        }
+        .modal label:first-of-type { margin-top: 0; }
+        .modal input[type="text"], .modal select {
+            width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 13px; background: #fff;
+            color: var(--navy);
+        }
+        .modal input[type="text"]:focus, .modal select:focus {
+            outline: 2px solid var(--accent); border-color: transparent;
+        }
+        .modal-cat-grid {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;
+        }
+        .modal-cat-chip {
+            padding: 4px 10px; border-radius: 4px; font-size: 11px;
+            font-weight: 600; cursor: pointer; border: 2px solid transparent;
+            opacity: .4; transition: all .15s;
+        }
+        .modal-cat-chip.selected { opacity: 1; border-color: #fff; }
+        .modal-cat-chip:hover { opacity: .8; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+        .modal-actions button {
+            padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border);
+            font-size: 13px; cursor: pointer; color: #6B7A8D; background: transparent;
+        }
+        .modal-actions button:hover { color: var(--navy); border-color: var(--navy); }
+        .modal-actions .btn-save { background: var(--accent); color: var(--navy); border-color: var(--accent); font-weight: 600; }
+
+        .modal-spotify-row {
+            display: flex; gap: 8px; align-items: flex-end;
+        }
+        .modal-spotify-row input { flex: 1; }
+        .modal-spotify-btn {
+            padding: 9px 14px; border-radius: 6px; border: 1px solid var(--accent);
+            background: transparent; color: var(--accent); font-size: 12px;
+            font-weight: 600; cursor: pointer; white-space: nowrap;
+        }
+        .modal-spotify-btn:hover { background: var(--accent); color: var(--navy); }
+        .modal-spotify-status { font-size: 11px; color: #999; margin-top: 4px; min-height: 16px; }
+        .modal-preview-row {
+            display: none; align-items: center; gap: 12px; margin-top: 8px;
+            padding: 10px; background: var(--cream-dark); border-radius: 8px;
+        }
+        .modal-preview-row.show { display: flex; }
+        .modal-preview-row img { width: 48px; height: 48px; border-radius: 4px; object-fit: cover; }
+        .modal-preview-row .meta { font-size: 12px; color: #6B7A8D; }
+        .modal-preview-row .meta strong { color: var(--navy); display: block; }
+
+        /* ── View toggle ────────────────────────────────── */
+        .view-toggle {
+            display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
+        }
+        .view-toggle button {
+            padding: 5px 14px; border: none; background: transparent;
+            color: var(--text-muted); font-size: 11px; cursor: pointer; transition: all .15s;
+        }
+        .view-toggle button.active { background: var(--navy); color: var(--cream); }
+        .view-toggle button:hover:not(.active) { color: var(--navy); }
+
+        /* ── Calendar grid view ─────────────────────────── */
+        .cal-month { margin-bottom: 40px; }
+        .cal-month-title {
+            font-size: 24px; font-weight: 700; color: var(--navy);
+            padding: 12px 0; border-bottom: 2px solid var(--navy); margin-bottom: 0;
+        }
+        .cal-weekdays {
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            border-bottom: 1px solid var(--border);
+        }
+        .cal-weekday {
+            padding: 8px 6px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .5px;
+            color: #999; text-align: center;
+        }
+        .cal-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            border-left: 1px solid var(--border);
+        }
+        .cal-day {
+            min-height: 120px; border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border); padding: 4px;
+            background: var(--cream); position: relative;
+        }
+        .cal-day.other-month { background: var(--cream-dark); opacity: .4; }
+        .cal-day.today { box-shadow: inset 0 0 0 2px var(--accent); }
+        .cal-day-num {
+            font-size: 13px; font-weight: 600; color: var(--navy);
+            padding: 2px 6px; display: inline-block;
+        }
+        .cal-day.today .cal-day-num {
+            background: var(--accent); color: var(--navy);
+            border-radius: 50%; width: 24px; height: 24px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cal-item {
+            display: flex; align-items: center; gap: 4px;
+            padding: 2px 5px; margin: 1px 0; border-radius: 3px;
+            font-size: 10px; font-weight: 600; color: #fff;
+            cursor: pointer; overflow: hidden; white-space: nowrap;
+            text-overflow: ellipsis; transition: opacity .15s;
+        }
+        .cal-item:hover { opacity: .8; }
+        .cal-item img {
+            width: 16px; height: 16px; border-radius: 2px; object-fit: cover; flex-shrink: 0;
+        }
+        .cal-item-text { overflow: hidden; text-overflow: ellipsis; }
+        .cal-more {
+            font-size: 10px; color: var(--text-muted); padding: 1px 5px; cursor: default;
+        }
+
+        /* ── Reminders view ─────────────────────────────── */
+        .rem-month { margin-bottom: 28px; }
+        .rem-month-title {
+            font-size: 18px; font-weight: 700; color: var(--navy);
+            padding: 10px 0; border-bottom: 2px solid var(--navy); margin-bottom: 12px;
+        }
+        .rem-list { list-style: none; padding: 0; }
+        .rem-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 8px 12px; border-radius: 6px; margin-bottom: 4px;
+            transition: background .1s;
+        }
+        .rem-item:hover { background: var(--cream-dark); }
+        .rem-item input[type="checkbox"] {
+            margin-top: 3px; accent-color: var(--accent);
+            width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;
+        }
+        .rem-item.done .rem-text { text-decoration: line-through; color: #aaa; }
+        .rem-text {
+            flex: 1; font-size: 14px; color: var(--navy);
+            border: none; background: transparent; outline: none;
+            font-family: inherit; padding: 0; line-height: 1.4;
+        }
+        .rem-text:focus { border-bottom: 1px solid var(--accent); }
+        .rem-delete {
+            color: #ccc; cursor: pointer; font-size: 14px; padding: 0 4px;
+            opacity: 0; transition: opacity .15s;
+        }
+        .rem-item:hover .rem-delete { opacity: 1; }
+        .rem-delete:hover { color: #8B2240; }
+        .rem-add {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 12px; color: #999; font-size: 13px;
+            cursor: pointer; border-radius: 6px; transition: all .15s;
+        }
+        .rem-add:hover { color: var(--accent); background: var(--cream-dark); }
+
+        /* ── Login screen ───────────────────────────────── */
+        .login-screen {
+            position: fixed; inset: 0; z-index: 999;
+            background: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 20px;
+        }
+        .login-screen.hidden { display: none; }
+        .login-box {
+            background: var(--cream); border-radius: 12px; padding: 32px;
+            width: 360px; max-width: 90vw; text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,.3);
+        }
+        .login-box h2 { font-size: 18px; color: var(--navy); margin-bottom: 4px; }
+        .login-box p { font-size: 12px; color: #6B7A8D; margin-bottom: 20px; }
+        .login-box input {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 14px; text-align: center;
+            background: #fff; color: var(--navy);
+        }
+        .login-box input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        .login-box button {
+            width: 100%; padding: 10px; border-radius: 20px; border: none;
+            background: var(--accent); color: var(--navy); font-size: 14px;
+            font-weight: 600; cursor: pointer; margin-top: 12px; transition: background .15s;
+        }
+        .login-box button:hover { background: var(--accent-hover); }
+        .login-error { color: #8B2240; font-size: 12px; margin-top: 8px; min-height: 18px; }
+        .login-logo { margin-bottom: 8px; }
+
+        /* ── Responsive ─────────────────────────────────── */
+        @media (max-width: 900px) {
+            .header, .legend-bar, .filters, .toolbar, .container { padding-left: 16px; padding-right: 16px; }
+            .card-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-box">
+        <div class="login-logo">
+            <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="16" fill="#1DB954"/>
+                <path d="M23.2 14.6c-3.6-2.1-9.5-2.3-12.9-1.3-.6.2-1.1-.2-1.3-.7-.2-.6.2-1.1.7-1.3 3.9-1.2 10.4-.9 14.5 1.5.5.3.7 1 .4 1.5-.3.4-1 .6-1.4.3zm-.3 3.2c-.3.4-.8.5-1.2.3-3-1.8-7.5-2.4-11-1.3-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4-.1.2 8.8-1.5 12.2 1.5.5.3.7 1 .4 1.5l.1-.3zm-1.4 3.1c-.2.3-.7.4-1 .2-2.6-1.6-5.9-2-9.8-1.1-.4.1-.8-.1-.9-.5-.1-.4.1-.8.5-.9 4.2-1 7.8-.6 10.7 1.2.4.3.5.7.3 1.1h.2z" fill="white"/>
+            </svg>
+        </div>
+        <h2>Audiobooks UKIE</h2>
+        <p>Enter password to access the content tracker</p>
+        <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter')attemptLogin()">
+        <button onclick="attemptLogin()">Sign In</button>
+        <div class="login-error" id="loginError"></div>
+    </div>
+</div>
+
+<!-- MAIN APP (hidden until login) -->
+<div id="mainApp" style="display:none">
+
+<!-- HEADER -->
+<div class="header">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="#1DB954"/>
+        <path d="M23.2 14.6c-3.6-2.1-9.5-2.3-12.9-1.3-.6.2-1.1-.2-1.3-.7-.2-.6.2-1.1.7-1.3 3.9-1.2 10.4-.9 14.5 1.5.5.3.7 1 .4 1.5-.3.4-1 .6-1.4.3zm-.3 3.2c-.3.4-.8.5-1.2.3-3-1.8-7.5-2.4-11-1.3-.5.1-1-.1-1.1-.6-.1-.5.1-1 .6-1.1 4-.1.2 8.8-1.5 12.2 1.5.5.3.7 1 .4 1.5l.1-.3zm-1.4 3.1c-.2.3-.7.4-1 .2-2.6-1.6-5.9-2-9.8-1.1-.4.1-.8-.1-.9-.5-.1-.4.1-.8.5-.9 4.2-1 7.8-.6 10.7 1.2.4.3.5.7.3 1.1h.2z" fill="white"/>
+    </svg>
+    <div>
+        <h1>Audiobooks UKIE – Content Tracker 2026</h1>
+        <p>Editorial content calendar · UK &amp; Ireland</p>
+    </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend-bar">
+    <span class="legend-group-label">Title Categories</span>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--always-on)"></div>Always On</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--high-prio-fiction)"></div>High Prio Fiction</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--high-prio-nonfiction)"></div>High Prio Nonfiction</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--book-to-screen)"></div>Book to Screen</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--sab-prio)"></div>SAB Prio</div>
+    <div class="legend-divider"></div>
+    <span class="legend-group-label">Campaigns</span>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--local-moment)"></div>Local Cultural Moment</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--global-campaign)"></div>Global Campaign</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--social-campaign)"></div>Social Campaign</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--events)"></div>Events</div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+    <button class="filter-btn active" onclick="filterBy('all',this)">All</button>
+    <button class="filter-btn" onclick="filterBy('always-on',this)">Always On</button>
+    <button class="filter-btn" onclick="filterBy('high-prio-fiction',this)">High Prio Fiction</button>
+    <button class="filter-btn" onclick="filterBy('high-prio-nonfiction',this)">High Prio Nonfiction</button>
+    <button class="filter-btn" onclick="filterBy('book-to-screen',this)">Book to Screen</button>
+    <button class="filter-btn" onclick="filterBy('sab-prio',this)">SAB Prio</button>
+    <button class="filter-btn" onclick="filterBy('local-moment',this)">Local Cultural Moment</button>
+    <button class="filter-btn" onclick="filterBy('global-campaign',this)">Global Campaign</button>
+    <button class="filter-btn" onclick="filterBy('social-campaign',this)">Social Campaign</button>
+    <button class="filter-btn" onclick="filterBy('events',this)">Events</button>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+    <button class="primary" onclick="exportData()">⬇ Export JSON</button>
+    <button onclick="importDataFile()">⬆ Import JSON</button>
+    <button onclick="clearAll()">🗑 Clear All</button>
+    <button onclick="copyShareLink()" id="shareLinkBtn">🔗 Copy Share Link</button>
+    <div class="spacer"></div>
+    <div class="view-toggle">
+        <button class="active" id="viewCards" onclick="setView('cards')">Cards</button>
+        <button id="viewCal" onclick="setView('calendar')">Calendar</button>
+        <button id="viewRem" onclick="setView('reminders')">R&amp;D's Reminders</button>
+    </div>
+    <div class="stats" id="globalStats"></div>
+    <div id="syncIndicator" style="font-size:11px;color:#999;display:flex;align-items:center;margin-left:12px;cursor:help" title="Cloud sync status"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#888;margin-right:6px"></span>Connecting...</div>
+</div>
+
+<!-- CONTENT -->
+<div class="container" id="calendarContainer"></div>
+
+<!-- FILE IMPORT -->
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleFileImport(event)">
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEdit()">
+    <div class="modal">
+        <h3 id="editModalTitle">Edit Title</h3>
+
+        <label>Spotify Link (auto-fills cover, title &amp; author)</label>
+        <div class="modal-spotify-row">
+            <input type="text" id="editSpotifyUrl" placeholder="https://open.spotify.com/show/...">
+            <button class="modal-spotify-btn" onclick="fetchFromSpotify()">Fetch</button>
+        </div>
+        <div class="modal-spotify-status" id="spotifyStatus"></div>
+        <div class="modal-preview-row" id="spotifyPreview">
+            <img id="spPreviewImg" src="" alt="">
+            <div class="meta"><strong id="spPreviewTitle"></strong><span id="spPreviewSub"></span></div>
+        </div>
+
+        <label>Title</label>
+        <input type="text" id="editTitle" placeholder="Book title">
+
+        <label>Author</label>
+        <input type="text" id="editAuthor" placeholder="Author name">
+
+        <label>Narrator</label>
+        <input type="text" id="editNarrator" placeholder="Narrator name">
+
+        <label>Publisher</label>
+        <input type="text" id="editPublisher" placeholder="Publisher name">
+
+        <label>Start Date</label>
+        <input type="date" id="editStartDate">
+        <label>End Date (optional — for campaigns/flights)</label>
+        <input type="date" id="editEndDate">
+
+        <label>Categories</label>
+        <div class="modal-cat-grid" id="editCatGrid"></div>
+
+        <label>Status</label>
+        <select id="editStatus">
+            <option value="planned">Planned</option>
+            <option value="in-progress">In Progress</option>
+            <option value="live">Live</option>
+            <option value="completed">Completed</option>
+        </select>
+
+        <label>Notes (URLs will auto-link on the card)</label>
+        <textarea id="editNotes" rows="3" placeholder="Add notes — any URLs will become clickable links" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;color:var(--navy);font-family:inherit;resize:vertical"></textarea>
+
+        <div class="modal-actions">
+            <button onclick="closeEdit()">Cancel</button>
+            <button class="btn-save" onclick="saveEdit()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+var MONTHS = [
+    'July 2026','August 2026','September 2026','October 2026','November 2026','December 2026',
+    'January 2027','February 2027','March 2027','April 2027','May 2027','June 2027',
+    'July 2027','August 2027','September 2027','October 2027','November 2027','December 2027'
+];
+var MONTH_ABBR = [
+    'JUL','AUG','SEP','OCT','NOV','DEC',
+    'JAN','FEB','MAR','APR','MAY','JUN',
+    'JUL','AUG','SEP','OCT','NOV','DEC'
+];
+
+var CATEGORIES = [
+    { value: 'always-on',           label: 'Always On',             color: '#8FAEC4', dark: true },
+    { value: 'high-prio-fiction',    label: 'High Prio Fiction',     color: '#6B3A7D', dark: false },
+    { value: 'high-prio-nonfiction', label: 'High Prio Nonfiction',  color: '#C45B3A', dark: false },
+    { value: 'book-to-screen',       label: 'Book to Screen',        color: '#1A5045', dark: false },
+    { value: 'sab-prio',             label: 'SAB Prio',              color: '#3D6FA8', dark: false },
+    { value: 'local-moment',         label: 'Local Cultural Moment', color: '#C8A84E', dark: true },
+    { value: 'global-campaign',      label: 'Global Campaign',       color: '#8B2240', dark: false },
+    { value: 'social-campaign',          label: 'Social Campaign',           color: '#5C8A4E', dark: false },
+    { value: 'events',                   label: 'Events',                    color: '#9C6B30', dark: false },
+];
+
+var DEFAULT_Q3 = {"July 2026": [{"id": "q3_0_july", "cover": "", "title": "Dead but Dreaming of Electric Sheep", "author": "Paul Tremblay", "narrator": "Dan Bittner,Graham Halstead,John Pirhalla,Sophie Amoss", "publisher": "Bloomsbury Publishing", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-02", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/3b9Nzu9SMWKAO9grhbDKug"}, {"id": "q3_1_july", "cover": "", "title": "The Land and its People", "author": "David Sedaris", "narrator": "David Sedaris", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-07-02", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/4lyc4pbrxC4l8ifGcWQRLu"}, {"id": "q3_2_july", "cover": "", "title": "Mr Sidhu’s Post Office", "author": "Amman Brar", "narrator": "Jassa Ahluwalia", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-02", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/4xJYybJcNOuekwr49jV7AW"}, {"id": "q3_3_july", "cover": "", "title": "Queenie is Working on It", "author": "Candice Carty-Williams", "narrator": "Shvorne Marks", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-02", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/1TQf6hF8TLFIYCqmu8tkaw"}, {"id": "q3_4_july", "cover": "", "title": "It Could Have Been Her", "author": "Lisa Jewell", "narrator": "Lesley Sharp,James Norton", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-02", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/1Wi3kGoQsK5PKcNLPYkps6"}, {"id": "q3_5_july", "cover": "", "title": "The Exquisite Torment of Loving Your Enemy", "author": "Brigitte Knightley", "narrator": "Heather Long,Thomas Judd", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-07", "startDate": "", "endDate": "", "notes": "Sci-Fi & Fantasy", "spotifyUrl": "https://open.spotify.com/show/0reXEei3lDmbhWZTID7x5h"}, {"id": "q3_6_july", "cover": "", "title": "The Final Score", "author": "Lana Ferguson", "narrator": "Not Yet Available", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-07", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/55ZoUaW0u98RVpQ1M1CfZF"}, {"id": "q3_7_july", "cover": "", "title": "Now What?", "author": "Gary John Bishop", "narrator": "Gary John Bishop", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-07-16", "startDate": "", "endDate": "", "notes": "Self-Help", "spotifyUrl": "https://open.spotify.com/show/7hEwbSjp6UwlbvLyZgYAVR"}, {"id": "q3_8_july", "cover": "", "title": "Getting Away With Murder", "author": "Shari Lapena", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-16", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/6xoZE9FDLGT5fYut379XPQ"}, {"id": "q3_9_july", "cover": "", "title": "Mad Mabel", "author": "Sally Hepworth", "narrator": "Hannah Fredrickson,Jenny Seedsman", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-09", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/3UWHV4mJZ1RSxHaaY6k0QY"}, {"id": "q3_10_july", "cover": "", "title": "Hot Girl Murder Club", "author": "Ashley Winstead", "narrator": "Brittany Pressley", "publisher": "Bloomsbury Publishing", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-14", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/5fqH5sN5x6zCbF1gMXiiKc"}, {"id": "q3_11_july", "cover": "", "title": "Unbound", "author": "Ali Hazelwood", "narrator": "Dean Miller,Tara Fatehi", "publisher": "Spotify Audiobooks", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-14", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/5rGzXvmCjjza1WQGveIavz"}, {"id": "q3_12_july", "cover": "", "title": "We Meet Apart", "author": "Martha Conway", "narrator": "Elisabeth Lagelée,Corinne Davies", "publisher": "Spotify Audiobooks", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-14", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/1FMYpF4lEfrMCGteHp7bxC"}, {"id": "q3_13_july", "cover": "", "title": "A Snake Among Swans", "author": "Hannah Kaner", "narrator": "Not Yet Available", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-30", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/0KTz7zRoJWFiJeukTecu7u"}, {"id": "q3_14_july", "cover": "", "title": "Devour Me", "author": "Emily Rath", "narrator": "Shane East,Gregory Salinas,Meghan Wicks", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-30", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/5pRm3Ko9ePxOLJhSSvYV3p"}, {"id": "q3_15_july", "cover": "", "title": "Biological War", "author": "Annie Jacobsen", "narrator": "Annie Jacobsen", "publisher": "Random House UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-07-30", "startDate": "", "endDate": "", "notes": "Nonfiction", "spotifyUrl": "https://open.spotify.com/show/5SNYjQjU8TgsXbJnGkitl7"}, {"id": "q3_16_july", "cover": "", "title": "If These Walls Could Talk", "author": "Michelle McDonagh", "narrator": "Michele Moran", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-16", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/42MlU88wutLi8H382ym5ln"}, {"id": "q3_17_july", "cover": "", "title": "Buyer Beware", "author": "Catherine Ryan Howard", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-16", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/1OPFXduLGbwdH4qnzITklA"}, {"id": "q3_18_july", "cover": "", "title": "Cool Machine", "author": "Colson Whitehead", "narrator": "Dion Graham", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-21", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/0CKVmKSHLnVKVQs1YJ917A"}, {"id": "q3_19_july", "cover": "", "title": "Wench", "author": "Erynne Rivers", "narrator": "India Amarteifio", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-16", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/2BuHk5yvBdIXMtFN0jauVI"}, {"id": "q3_20_july", "cover": "", "title": "The Masala Chai Mystery Club", "author": "MJ Soni", "narrator": "Not yet available", "publisher": "Spotify Audiobooks", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-21", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/1eO0obcZyqWJtmPcPHmW7v"}, {"id": "q3_21_july", "cover": "", "title": "The Night Stairs", "author": "Erin Kelly", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-09", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/1kpzPEV0mk5pw0cKq1eAKo"}, {"id": "q3_22_july", "cover": "", "title": "Eden Falls", "author": "Ajay Chowdhury", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-23", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/1IHwlcUyaG9jpd75NOS11M"}, {"id": "q3_23_july", "cover": "", "title": "Country People", "author": "Daniel Mason", "narrator": "Not Yet Available", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-07-07", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/2N1oyR7guP502xCrtuESet"}], "August 2026": [{"id": "q3_0_august", "cover": "", "title": "Eyes of Kings", "author": "Chloe Gong", "narrator": "Jeena Yi", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-06", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/1RLMLMU4oQE5CHtJrDZO3P"}, {"id": "q3_1_august", "cover": "", "title": "Where Are the Kings", "author": "Donal Ryan", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-13", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/6GhYuQM38poC3YRYhcZmt4"}, {"id": "q3_2_august", "cover": "", "title": "Dreamland", "author": "Olivie Blake", "narrator": "Ferdelle Capistrano,Max Meyers,Steve West,Chloe Nosan,Mia Wurgaft,Maggie Thompson", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-13", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/2H6ryOGvupHd2AuFCuh0or"}, {"id": "q3_3_august", "cover": "", "title": "You’ll Love It Here", "author": "Natalie Sue", "narrator": "Nasim Pedrad", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-13", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/1ZhyuGWdLRI6Y4p23arcjW"}, {"id": "q3_4_august", "cover": "", "title": "Eyes on You", "author": "Adele Parks", "narrator": "Kristin Atherton", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/3BzUQCh7lHRe8QfmY7m8JW"}, {"id": "q3_5_august", "cover": "", "title": "Claws Out!", "author": "Bella Mackie", "narrator": "to be announced", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/6QMFKG6WV6B69bhaCzCzj4"}, {"id": "q3_6_august", "cover": "", "title": "Love Unlocked", "author": "Cecelia Ahern", "narrator": "to be announced", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/44NUAHtSbWl6qxe0wN2UWc"}, {"id": "q3_7_august", "cover": "", "title": "Earthbound", "author": "Saara El-Arifi", "narrator": "to be announced", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/3qWal8gkjtVH8DE1FYhaUw"}, {"id": "q3_8_august", "cover": "", "title": "Deviant King", "author": "Rina Kent", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-11", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/6EeEPsjpdxIoFtmVMfd4Wb"}, {"id": "q3_9_august", "cover": "", "title": "Embrace", "author": "Bal Khabra", "narrator": "Bal Khabra,Grayson Owens,Lidia Dornet", "publisher": "Bloomsbury Publishing", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-04", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/0823eVXY87jwWczKfic463"}, {"id": "q3_10_august", "cover": "", "title": "From Pasta to Pigfoot: Second Helpings", "author": "Frances Mensah Williams", "narrator": "Yasmin Mwanza", "publisher": "Saga Egmont", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-04", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/2Z4413ELNFrtuWzthyt9Dw"}, {"id": "q3_11_august", "cover": "", "title": "The Lunatics", "author": "Navessa Allen", "narrator": "Andi Eloise,Brandon Franci", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-04", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/7CbRyoOQTJfOtzlUX8Hhwz"}, {"id": "q3_12_august", "cover": "", "title": "The Unknown", "author": "Riley Sager", "narrator": "Stephanie Cannon", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-04", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/6f6b0sGHO7GG15nBo4NYF5"}, {"id": "q3_13_august", "cover": "", "title": "Life of M", "author": "Rachel Cusk", "narrator": "Rachel Cusk", "publisher": "Faber & Faber", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-25", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/0sQWR4VnA7t7oeYsQalSaV"}, {"id": "q3_14_august", "cover": "", "title": "Love, Vito", "author": "Vito Coppola", "narrator": "Vito Coppola", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/3080jkp6s91GKBTSiJwbc1"}, {"id": "q3_15_august", "cover": "", "title": "Gio", "author": "Giovanni Pernice", "narrator": "Not Yet Available", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/6KJBxPQFdljjR0ZBLaZJZp"}, {"id": "q3_16_august", "cover": "", "title": "We Have Ways of Making You Talk", "author": "Al Murray,James Holland,Goalhanger Productions", "narrator": "Al Murray", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "History", "spotifyUrl": "https://open.spotify.com/show/1VlkP4bagAE21KRFeEl1QJ"}, {"id": "q3_17_august", "cover": "", "title": "To All the Men I’ve Killed Before", "author": "Katy Brent", "narrator": "Victoria Morrison,Imogen Front", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-08-27", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/0AqQsD7OOcpamAKKfZmb5D"}], "September 2026": [{"id": "q3_0_september", "cover": "", "title": "Gruffalo Granny", "author": "Julia Donaldson", "narrator": "Imelda Staunton", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-10", "startDate": "", "endDate": "", "notes": "Kids & Family", "spotifyUrl": "https://open.spotify.com/show/31PmwxfdKLwMG5XPE833SP"}, {"id": "q3_1_september", "cover": "", "title": "Situated", "author": "Angela Duckworth", "narrator": "Angela Duckworth", "publisher": "Random House UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-01", "startDate": "", "endDate": "", "notes": "Self-Help", "spotifyUrl": "https://open.spotify.com/show/7trNPMQKX143NBytKkFdoM"}, {"id": "q3_2_september", "cover": "", "title": "Hollywood, Ending", "author": "John Green", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-22", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/4kmZ3arwSxzdOzTtUgbAQz"}, {"id": "q3_3_september", "cover": "", "title": "Redwood", "author": "Ben Macintyre", "narrator": "Ben Macintyre", "publisher": "Random House UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-10", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/6IzbIxJRqiME37VY2WcZgO"}, {"id": "q3_4_september", "cover": "", "title": "We Chase Shadows", "author": "Richard Osman", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-10", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/5kzw40XfrMxRCsyZAGLdbD"}, {"id": "q3_5_september", "cover": "", "title": "What a Time to be Alive!", "author": "Marina Hyde", "narrator": "Marina Hyde", "publisher": "Guardian Faber Publishing", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-22", "startDate": "", "endDate": "", "notes": "Comedy & Humor", "spotifyUrl": "https://open.spotify.com/show/2WrgsEKBI7PsiplK9XProX"}, {"id": "q3_6_september", "cover": "", "title": "The Disappearers", "author": "Marlon James", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-03", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/1X0LYoRSUjtNLXplPzHO4c"}, {"id": "q3_7_september", "cover": "", "title": "Journey Across Japan", "author": "Chris Broad", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-24", "startDate": "", "endDate": "", "notes": "Nonfiction", "spotifyUrl": "https://open.spotify.com/show/5m4PywQZY307BFsoBdu3hI"}, {"id": "q3_8_september", "cover": "", "title": "Make Me Well", "author": "Xand van Tulleken", "narrator": "Xand van Tulleken", "publisher": "Random House UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-10", "startDate": "", "endDate": "", "notes": "Business & Careers", "spotifyUrl": "https://open.spotify.com/show/1nNjHv4W1xojDTE28XmDAr"}, {"id": "q3_9_september", "cover": "", "title": "All the Wrong Moves", "author": "Anthony Scaramucci", "narrator": "Anthony Scaramucci", "publisher": "Random House UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-17", "startDate": "", "endDate": "", "notes": "Nonfiction", "spotifyUrl": "https://open.spotify.com/show/3WCsaNq5Q5sXmeVXE0LUhb"}, {"id": "q3_10_september", "cover": "", "title": "The Strangers", "author": "Naomi Alderman", "narrator": "Not Yet Available", "publisher": "Random House UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-17", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/3mrKpFJxYQWO8eyfVB1bWv"}, {"id": "q3_11_september", "cover": "", "title": "Mestra", "author": "Madeline Miller", "narrator": "Not Yet Available", "publisher": "Bloomsbury Publishing", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-29", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/0UW5HKzW6ZiDrnnwd0F3Y9"}, {"id": "q3_12_september", "cover": "", "title": "Exit Party", "author": "Emily St John Mandel", "narrator": "Not Yet Available", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-17", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/3md0rrgUXeizEJbDU89pnz"}, {"id": "q3_13_september", "cover": "", "title": "Bodies of Magic", "author": "Freya Marske", "narrator": "Saskia Maarleveld", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-17", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/0doco8iZUU6pGtxqMa1K6e"}, {"id": "q3_14_september", "cover": "", "title": "Ply", "author": "Hernan Diaz", "narrator": "Not Yet Available", "publisher": "Pan Macmillan", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-24", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/7IIk8HpdahKbZhzYAf2New"}, {"id": "q3_15_september", "cover": "", "title": "Winterveil", "author": "Ava Reid", "narrator": "To be Confirmed", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-24", "startDate": "", "endDate": "", "notes": "Teen & Young Adult", "spotifyUrl": "https://open.spotify.com/show/1hakRVOhWAi9NMhKb1VwZI"}, {"id": "q3_16_september", "cover": "", "title": "Fallen Rook", "author": "L.J. Shen", "narrator": "Not Yet Available", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-22", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/1HvIdETEW5gu1oAo1vcrnt"}, {"id": "q3_17_september", "cover": "", "title": "American Hagwon", "author": "Min Jin Lee", "narrator": "Not Yet Available", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-29", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/2KBqgMsuPecLRiCLYOaeyw"}, {"id": "q3_18_september", "cover": "", "title": "Plunder", "author": "Max Hastings", "narrator": "Not Yet Available", "publisher": "HarperCollins UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-24", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/6nGZGH919kWtuV4IkSqpNU"}, {"id": "q3_19_september", "cover": "", "title": "F*ck Failure", "author": "benny blanco", "narrator": "benny blanco", "publisher": "Simon & Schuster UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-15", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/4mHDKtoVlSXMDAtJW9PW7r"}, {"id": "q3_20_september", "cover": "", "title": "Styx: The River", "author": "Nikita Gill", "narrator": "Not Yet Available", "publisher": "Simon & Schuster UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-01", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/33pT3MBqfaX8jfeWUWOhJv"}, {"id": "q3_21_september", "cover": "", "title": "Taipei Story", "author": "Rebecca F Kuang", "narrator": "Carolyn Kang", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-08", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/1cDu0pmeOLnTm1DpUxFvx0"}, {"id": "q3_22_september", "cover": "", "title": "Big Bad Wolf", "author": "Laurie Gilmore", "narrator": "to be announced", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-08", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/1VpcW7s6GhqXQzuzswFW46"}, {"id": "q3_23_september", "cover": "", "title": "The Silent Appeal", "author": "Janice Hallett", "narrator": "Not Yet Available", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-03", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/4AgqVv0LOS8RZ6s88DFvca"}, {"id": "q3_24_september", "cover": "", "title": "The Knave and the Moon", "author": "Rachel Gillig", "narrator": "Rupert Channing,Samantha Hydeson", "publisher": "Little, Brown (Hachette UK)", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-01", "startDate": "", "endDate": "", "notes": "Sci-Fi & Fantasy", "spotifyUrl": "https://open.spotify.com/show/4tepbh2UptV4YncdJqfuev"}, {"id": "q3_25_september", "cover": "", "title": "Blightfall", "author": "Brandon Sanderson,Janci Patterson", "narrator": "Not Yet Available", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-01", "startDate": "", "endDate": "", "notes": "Sci-Fi & Fantasy", "spotifyUrl": "https://open.spotify.com/show/7hx9EknWI1NJYhIL90Jj3a"}, {"id": "q3_26_september", "cover": "", "title": "Dead Beat", "author": "Leigh Bardugo", "narrator": "Lauren Fortgang,Michael David Axtell", "publisher": "Hachette UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-15", "startDate": "", "endDate": "", "notes": "Sci-Fi & Fantasy", "spotifyUrl": "https://open.spotify.com/show/2aHKaQE86LanEyAgfF028y"}, {"id": "q3_27_september", "cover": "", "title": "Never Say Die", "author": "Ke Huy Quan", "narrator": "Not Yet Available", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-15", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/45gW4r2tLb37BGTFoVJPHQ"}, {"id": "q3_28_september", "cover": "", "title": "A History of the World in 51 Heroes and Villains", "author": "Goalhanger,Tom Holland,Dominic Sandbrook", "narrator": "Not Yet Available", "publisher": "Bloomsbury Publishing", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-10", "startDate": "", "endDate": "", "notes": "History", "spotifyUrl": "https://open.spotify.com/show/7DZXp6m4v1HjLEgsgl6Dxj"}, {"id": "q3_29_september", "cover": "", "title": "More", "author": "Gillian Anderson", "narrator": "Anonymous,Gillian Anderson", "publisher": "Bloomsbury Publishing", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-10", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/13LXcsindY7lY4ksB11dfB"}, {"id": "q3_30_september", "cover": "", "title": "Moreish: My Mad Autobiography", "author": "Super Hans", "narrator": "Not Yet Available", "publisher": "HarperCollins UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-24", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/3CxnpPUSkBYO0Ojpq30XjF"}, {"id": "q3_31_september", "cover": "", "title": "Grim Tidings", "author": "B.K. Borison", "narrator": "Stephen Dexter,Angelina Rocca", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-15", "startDate": "", "endDate": "", "notes": "Fiction & Literature", "spotifyUrl": "https://open.spotify.com/show/2tpVE7PxwxKYF6iF7AJUEz"}, {"id": "q3_32_september", "cover": "", "title": "Murder at the Grand Alpine Hotel", "author": "Lucy Foley,Agatha Christie", "narrator": "Not Yet Available", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-22", "startDate": "", "endDate": "", "notes": "Mystery & Thriller", "spotifyUrl": "https://open.spotify.com/show/3wKwImrWZ24ey0aLVHCHhz"}, {"id": "q3_33_september", "cover": "", "title": "A Life in Lyrics", "author": "Freddie Mercury,Mary Austin", "narrator": "Not Yet Available", "publisher": "HarperCollins UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-01", "startDate": "", "endDate": "", "notes": "Nonfiction", "spotifyUrl": "https://open.spotify.com/show/6rK4Fsupgqc7ms5TKHltDk"}, {"id": "q3_34_september", "cover": "", "title": "The Emperor’s Enemy", "author": "Jasmine Mas", "narrator": "Emma Wilder,Teddy Hamilton", "publisher": "HarperCollins UK", "categories": ["high-prio-fiction"], "status": "planned", "date": "2026-09-24", "startDate": "", "endDate": "", "notes": "Romance", "spotifyUrl": "https://open.spotify.com/show/3907fZgs1QGydS0mRIyXHe"}, {"id": "q3_35_september", "cover": "", "title": "Vigilauntie", "author": "Meera Syal", "narrator": "Meera Syal", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-03", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/6GpiauGJ2sNCi23BYfBADQ"}, {"id": "q3_36_september", "cover": "", "title": "Miriam’s Full English", "author": "Miriam Margolyes", "narrator": "Miriam Margolyes", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-03", "startDate": "", "endDate": "", "notes": "Comedy & Humor", "spotifyUrl": "https://open.spotify.com/show/1A6LziqAgnmDwjwHIF722b"}, {"id": "q3_37_september", "cover": "", "title": "The Steps", "author": "Sylvester Stallone", "narrator": "Sylvester Stallone", "publisher": "Hachette UK", "categories": ["high-prio-nonfiction"], "status": "planned", "date": "2026-09-29", "startDate": "", "endDate": "", "notes": "Biography & Memoir", "spotifyUrl": "https://open.spotify.com/show/1f7q3jM2DYi0WKHP8d3NBr"}]};
+
+var data = {};
+try { var s = localStorage.getItem('ukie-tracker-2026-27'); if (s) data = JSON.parse(s); } catch(e) {}
+MONTHS.forEach(function(m) { if (!Array.isArray(data[m])) data[m] = []; });
+// Seed Q3 months that are still empty with default data
+Object.keys(DEFAULT_Q3).forEach(function(m) {
+    if (data[m] && data[m].length === 0) {
+        data[m] = DEFAULT_Q3[m];
+    } else if (data[m] && data[m].length > 0) {
+        // Apply missing categories from defaults to existing items
+        var defaultMap = {};
+        DEFAULT_Q3[m].forEach(function(d) { defaultMap[d.id] = d; });
+        data[m].forEach(function(item) {
+            if (item.id && defaultMap[item.id] && (!item.categories || item.categories.length === 0)) {
+                item.categories = defaultMap[item.id].categories;
+            }
+        });
+    }
+});
+
+// Migrate legacy
+MONTHS.forEach(function(m) {
+    data[m].forEach(function(item) {
+        if (item.category && !item.categories) { item.categories = [item.category]; delete item.category; }
+        if (!Array.isArray(item.categories)) item.categories = [];
+        if (!item.cover) item.cover = '';
+        if (!item.narrator) item.narrator = '';
+        if (!item.publisher) item.publisher = '';
+        if (!item.spotifyUrl) item.spotifyUrl = '';
+        if (!item.id) item.id = makeId();
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// JSONBIN.IO CLOUD SYNC
+// ═══════════════════════════════════════════════════════════════
+var JSONBIN_KEY = '$2a$10$dN04eWu8LIgcdcZXFPcX..Turudn0.ZqOgGXEVJ74qVrB1Ac1KC0.';
+var JSONBIN_API = 'https://api.jsonbin.io/v3/b';
+// Bin ID: check URL hash first (shared link), then localStorage
+var binId = '';
+(function() {
+    var hashMatch = window.location.hash.match(/bin=([a-f0-9]+)/i);
+    if (hashMatch) {
+        binId = hashMatch[1];
+        localStorage.setItem('ukie-bin-id', binId);
+    } else {
+        binId = localStorage.getItem('ukie-bin-id') || '';
+    }
+})();
+var syncStatus = 'offline';
+var isSaving = false;
+var saveQueue = false;
+var pollTimer = null;
+var lastSyncHash = '';
+
+function dataHash() {
+    return JSON.stringify(data).length + '_' + JSON.stringify(reminders || {}).length;
+}
+
+function showSyncStatus(status, text) {
+    syncStatus = status;
+    var el = document.getElementById('syncIndicator');
+    if (!el) return;
+    var colors = { synced: '#1DB954', saving: '#C8A84E', offline: '#888', error: '#E74C3C' };
+    var labels = { synced: 'Synced', saving: 'Saving...', offline: 'Offline', error: 'Sync error' };
+    el.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + (colors[status] || '#888') + ';margin-right:6px"></span>' + (text || labels[status] || status);
+}
+
+function cloudSave() {
+    if (!binId) { localStorage.setItem('ukie-tracker-2026-27', JSON.stringify(data)); updateStats(); return; }
+    if (isSaving) { saveQueue = true; return; }
+    isSaving = true;
+    showSyncStatus('saving');
+    var payload = { content: data, reminders: reminders || {} };
+    localStorage.setItem('ukie-tracker-2026-27', JSON.stringify(data));
+    localStorage.setItem('ukie-reminders', JSON.stringify(reminders || {}));
+    fetch(JSONBIN_API + '/' + binId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('PUT failed: ' + r.status);
+        return r.json();
+    })
+    .then(function() {
+        lastSyncHash = dataHash();
+        showSyncStatus('synced');
+        isSaving = false;
+        if (saveQueue) { saveQueue = false; cloudSave(); }
+    })
+    .catch(function(err) {
+        console.error('Cloud save error:', err);
+        showSyncStatus('error', 'Save failed — cached locally');
+        isSaving = false;
+        if (saveQueue) { saveQueue = false; cloudSave(); }
+    });
+}
+
+function cloudLoad(callback) {
+    if (!binId) { if (callback) callback(); return; }
+    showSyncStatus('saving', 'Loading...');
+    fetch(JSONBIN_API + '/' + binId + '/latest', {
+        headers: { 'X-Master-Key': JSONBIN_KEY }
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('GET failed: ' + r.status);
+        return r.json();
+    })
+    .then(function(result) {
+        var rec = result.record || {};
+        if (rec.content) {
+            MONTHS.forEach(function(m) {
+                if (rec.content[m]) data[m] = rec.content[m];
+            });
+        }
+        if (rec.reminders) {
+            reminders = rec.reminders;
+            MONTHS.forEach(function(m) { if (!Array.isArray(reminders[m])) reminders[m] = []; });
+        }
+        localStorage.setItem('ukie-tracker-2026-27', JSON.stringify(data));
+        localStorage.setItem('ukie-reminders', JSON.stringify(reminders));
+        lastSyncHash = dataHash();
+        showSyncStatus('synced');
+        if (callback) callback();
+    })
+    .catch(function(err) {
+        console.error('Cloud load error:', err);
+        showSyncStatus('error', 'Load failed — using cache');
+        if (callback) callback();
+    });
+}
+
+function createBin(callback) {
+    showSyncStatus('saving', 'Setting up sync...');
+    var payload = { content: data, reminders: reminders || {} };
+    fetch(JSONBIN_API, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_KEY,
+            'X-Bin-Name': 'ukie-tracker-2026',
+            'X-Bin-Private': 'false'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('POST failed: ' + r.status);
+        return r.json();
+    })
+    .then(function(result) {
+        binId = result.metadata.id;
+        localStorage.setItem('ukie-bin-id', binId);
+        window.location.hash = 'bin=' + binId;
+        lastSyncHash = dataHash();
+        showSyncStatus('synced');
+        console.log('Created bin:', binId);
+        if (callback) callback();
+    })
+    .catch(function(err) {
+        console.error('Create bin error:', err);
+        showSyncStatus('error', 'Setup failed — using local only');
+        if (callback) callback();
+    });
+}
+
+function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(function() {
+        if (isSaving || !binId) return;
+        fetch(JSONBIN_API + '/' + binId + '/latest', {
+            headers: { 'X-Master-Key': JSONBIN_KEY }
+        })
+        .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+        .then(function(result) {
+            var rec = result.record || {};
+            if (!rec.content) return;
+            // Build a quick hash of remote data to check if it changed
+            var remoteStr = JSON.stringify(rec.content).length + '_' + JSON.stringify(rec.reminders || {}).length;
+            if (remoteStr !== lastSyncHash) {
+                MONTHS.forEach(function(m) { if (rec.content[m]) data[m] = rec.content[m]; });
+                if (rec.reminders) {
+                    reminders = rec.reminders;
+                    MONTHS.forEach(function(m) { if (!Array.isArray(reminders[m])) reminders[m] = []; });
+                }
+                localStorage.setItem('ukie-tracker-2026-27', JSON.stringify(data));
+                localStorage.setItem('ukie-reminders', JSON.stringify(reminders));
+                lastSyncHash = remoteStr;
+                render();
+                showSyncStatus('synced', 'Updated');
+                setTimeout(function() { showSyncStatus('synced'); }, 2000);
+            }
+        })
+        .catch(function() {
+            showSyncStatus('error', 'Sync check failed');
+        });
+    }, 30000); // Poll every 30 seconds
+}
+
+function save() { cloudSave(); updateStats(); }
+function makeId() { return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
+
+function newItem() {
+    return {
+        id: makeId(), cover: '', title: '', author: '', narrator: '', publisher: '',
+        categories: [], status: 'planned', date: '', startDate: '', endDate: '',
+        notes: '', spotifyUrl: ''
+    };
+}
+
+function esc(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function linkify(s) {
+    if (!s) return '';
+    var escaped = esc(s);
+    return escaped.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#8FAEC4;text-decoration:underline;word-break:break-all">$1</a>');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+var collapsedMonths = {};
+var activeFilter = 'all';
+var currentView = 'cards';
+
+function setView(view) {
+    currentView = view;
+    document.getElementById('viewCards').className = view === 'cards' ? 'active' : '';
+    document.getElementById('viewCal').className = view === 'calendar' ? 'active' : '';
+    document.getElementById('viewRem').className = view === 'reminders' ? 'active' : '';
+    render();
+}
+
+function render() {
+    if (currentView === 'calendar') { renderCalendar(); return; }
+    if (currentView === 'reminders') { renderReminders(); return; }
+    var c = document.getElementById('calendarContainer');
+    c.innerHTML = '';
+
+    MONTHS.forEach(function(month, mi) {
+        var all = data[month];
+        var items = all.filter(function(item) {
+            if (activeFilter === 'all') return true;
+            return item.categories && item.categories.indexOf(activeFilter) !== -1;
+        });
+        var collapsed = collapsedMonths[month];
+        var abbr = MONTH_ABBR[mi];
+
+        var h = '<div class="month-section">';
+        h += '<div class="month-header" onclick="toggleMonth(\'' + month + '\')">';
+        h += '<div><h2 style="display:inline">' + month + '</h2><span class="count">' + all.length + '</span></div>';
+        h += '<span class="toggle">' + (collapsed ? '▶ Show' : '▼ Hide') + '</span>';
+        h += '</div>';
+        h += '<div class="card-grid' + (collapsed ? ' collapsed' : '') + '">';
+
+        items.forEach(function(item) {
+            h += renderCard(item, month, abbr);
+        });
+
+        h += '<div class="add-card" onclick="addItem(\'' + month + '\')">+ Add Entry</div>';
+        h += '</div></div>';
+
+        c.insertAdjacentHTML('beforeend', h);
+    });
+    updateStats();
+}
+
+function parseCardDate(item, abbr) {
+    if (item.startDate) {
+        var sd = new Date(item.startDate + 'T00:00:00');
+        if (item.endDate) {
+            var ed = new Date(item.endDate + 'T00:00:00');
+            return '<div class="card-date">'
+                + '<span class="card-date-day" style="font-size:22px">' + sd.getDate() + ' ' + MONTH_ABBR_FULL[sd.getMonth()] + '</span>'
+                + '<span class="card-date-month" style="margin:2px 0">—</span>'
+                + '<span class="card-date-day" style="font-size:22px">' + ed.getDate() + ' ' + MONTH_ABBR_FULL[ed.getMonth()] + '</span>'
+                + '</div>';
+        }
+        return '<div class="card-date"><span class="card-date-day">' + sd.getDate() + '</span><span class="card-date-month">' + MONTH_ABBR_FULL[sd.getMonth()].toUpperCase() + '</span></div>';
+    }
+    if (item.date) {
+        var d = new Date(item.date + 'T00:00:00');
+        if (!isNaN(d.getTime())) {
+            return '<div class="card-date"><span class="card-date-day">' + d.getDate() + '</span><span class="card-date-month">' + MONTH_ABBR_FULL[d.getMonth()].toUpperCase() + '</span></div>';
+        }
+        var dayNum = (item.date || '').replace(/[^0-9]/g, '');
+        if (dayNum) return '<div class="card-date"><span class="card-date-day">' + dayNum + '</span><span class="card-date-month">' + abbr + '</span></div>';
+    }
+    return '';
+}
+
+function renderCard(item, month, abbr) {
+    var cats = item.categories || [];
+    var dateHtml = parseCardDate(item, abbr);
+
+    var h = '<div class="card">';
+
+    // Actions
+    h += '<div class="card-actions">';
+    h += '<button class="card-action-btn" onclick="editItem(\'' + month + '\',\'' + item.id + '\')" title="Edit">✎</button>';
+    h += '<button class="card-action-btn" onclick="deleteItem(\'' + month + '\',\'' + item.id + '\')" title="Delete">✕</button>';
+    h += '</div>';
+
+    // Badges
+    if (cats.length > 0) {
+        h += '<div class="card-badges">';
+        cats.forEach(function(c) {
+            var cat = CATEGORIES.find(function(x) { return x.value === c; });
+            if (cat) h += '<span class="badge ' + cat.value + '">' + cat.label + '</span>';
+        });
+        h += '</div>';
+    }
+
+    // Cover + date row
+    h += '<div class="card-cover-row">';
+    if (dateHtml) h += dateHtml;
+    if (item.cover) {
+        h += '<img class="card-cover" src="' + esc(item.cover) + '" onclick="editItem(\'' + month + '\',\'' + item.id + '\')">';
+    } else {
+        h += '<div class="card-cover-placeholder" onclick="editItem(\'' + month + '\',\'' + item.id + '\')">+</div>';
+    }
+    h += '</div>';
+
+    // Info section
+    h += '<div class="card-info">';
+    h += '<div class="card-title">' + esc(item.title || 'Untitled') + '</div>';
+    if (item.author) h += '<div class="card-author">' + esc(item.author) + '</div>';
+    if (item.narrator) h += '<div class="card-narrator">narrated by ' + esc(item.narrator) + '</div>';
+    if (item.publisher) h += '<div class="card-publisher">' + esc(item.publisher) + '</div>';
+    if (item.notes) h += '<div class="card-notes">' + linkify(item.notes) + '</div>';
+    h += '</div>';
+
+    // Spotify link
+    if (item.spotifyUrl) {
+        h += '<a class="card-spotify-link" href="' + esc(item.spotifyUrl) + '" target="_blank" rel="noopener">';
+        h += '<span class="card-spotify-dot"></span>Open Audiobook on Spotify</a>';
+    }
+
+    h += '</div>';
+    return h;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function addItem(month) {
+    var item = newItem();
+    data[month].push(item);
+    save();
+    editItem(month, item.id);
+}
+
+function deleteItem(month, id) {
+    if (!confirm('Remove this title?')) return;
+    data[month] = data[month].filter(function(i) { return i.id !== id; });
+    save(); render();
+}
+
+function toggleMonth(month) { collapsedMonths[month] = !collapsedMonths[month]; render(); }
+
+function filterBy(cat, btn) {
+    activeFilter = cat;
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    render();
+}
+
+function updateStats() {
+    var total = 0, used = 0;
+    MONTHS.forEach(function(m) { total += data[m].length; if (data[m].length) used++; });
+    document.getElementById('globalStats').textContent = total + ' title' + (total !== 1 ? 's' : '') + ' across ' + used + ' month' + (used !== 1 ? 's' : '');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CALENDAR GRID VIEW
+// ═══════════════════════════════════════════════════════════════
+var MONTH_ABBR_FULL = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var MONTH_MAP = {
+    'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+    'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+};
+var WEEKDAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var CAT_COLORS = {};
+CATEGORIES.forEach(function(c) { CAT_COLORS[c.value] = c.color; });
+
+function parseMonthYear(monthKey) {
+    var parts = monthKey.split(' ');
+    return { name: parts[0], year: parseInt(parts[1]), monthIdx: MONTH_MAP[parts[0]] };
+}
+
+function renderCalendar() {
+    var c = document.getElementById('calendarContainer');
+    c.innerHTML = '';
+    var today = new Date();
+
+    MONTHS.forEach(function(monthKey) {
+        var info = parseMonthYear(monthKey);
+        var allItems = data[monthKey] || [];
+        var items = allItems.filter(function(item) {
+            if (activeFilter === 'all') return true;
+            return item.categories && item.categories.indexOf(activeFilter) !== -1;
+        });
+
+        // Build a map: day number -> items
+        var dayMap = {};
+        items.forEach(function(item) {
+            var d = parseInt((item.date || '').replace(/[^0-9]/g, ''));
+            if (d > 0 && d <= 31) {
+                if (!dayMap[d]) dayMap[d] = [];
+                dayMap[d].push(item);
+            }
+        });
+
+        // Unscheduled items (no date)
+        var unscheduled = items.filter(function(item) {
+            var d = parseInt((item.date || '').replace(/[^0-9]/g, ''));
+            return !d;
+        });
+
+        var firstDay = new Date(info.year, info.monthIdx, 1).getDay();
+        var daysInMonth = new Date(info.year, info.monthIdx + 1, 0).getDate();
+
+        var h = '<div class="cal-month">';
+        h += '<div class="cal-month-title">' + monthKey + '</div>';
+        h += '<div class="cal-weekdays">';
+        WEEKDAYS.forEach(function(w) { h += '<div class="cal-weekday">' + w + '</div>'; });
+        h += '</div>';
+        h += '<div class="cal-grid">';
+
+        // Blank days before month starts
+        for (var b = 0; b < firstDay; b++) {
+            h += '<div class="cal-day other-month"></div>';
+        }
+
+        // Days of month
+        for (var d = 1; d <= daysInMonth; d++) {
+            var isToday = (d === today.getDate() && info.monthIdx === today.getMonth() && info.year === today.getFullYear());
+            h += '<div class="cal-day' + (isToday ? ' today' : '') + '">';
+            h += '<div class="cal-day-num">' + d + '</div>';
+
+            var dayItems = dayMap[d] || [];
+            var maxShow = 3;
+            for (var i = 0; i < Math.min(dayItems.length, maxShow); i++) {
+                var item = dayItems[i];
+                var bgColor = '#4A5A7A';
+                if (item.categories && item.categories.length > 0) {
+                    bgColor = CAT_COLORS[item.categories[0]] || bgColor;
+                }
+                h += '<div class="cal-item" style="background:' + bgColor + '" onclick="editItem(\'' + monthKey.replace("'", "\\'") + '\',\'' + item.id + '\')">';
+                if (item.cover) h += '<img src="' + esc(item.cover) + '">';
+                h += '<span class="cal-item-text">' + esc(item.title || 'Untitled') + '</span>';
+                h += '</div>';
+            }
+            if (dayItems.length > maxShow) {
+                h += '<div class="cal-more">+' + (dayItems.length - maxShow) + ' more</div>';
+            }
+            h += '</div>';
+        }
+
+        // Blank days after month ends
+        var totalCells = firstDay + daysInMonth;
+        var remaining = (7 - (totalCells % 7)) % 7;
+        for (var r = 0; r < remaining; r++) {
+            h += '<div class="cal-day other-month"></div>';
+        }
+
+        h += '</div>';
+
+        // Show unscheduled items below
+        if (unscheduled.length > 0) {
+            h += '<div style="padding:8px 0;font-size:11px;color:#999;font-weight:600">UNSCHEDULED</div>';
+            h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+            unscheduled.forEach(function(item) {
+                var bgColor = '#4A5A7A';
+                if (item.categories && item.categories.length > 0) bgColor = CAT_COLORS[item.categories[0]] || bgColor;
+                h += '<div class="cal-item" style="background:' + bgColor + ';display:inline-flex" onclick="editItem(\'' + monthKey.replace("'", "\\'") + '\',\'' + item.id + '\')">';
+                if (item.cover) h += '<img src="' + esc(item.cover) + '">';
+                h += '<span class="cal-item-text">' + esc(item.title || 'Untitled') + '</span>';
+                h += '</div>';
+            });
+            h += '</div>';
+        }
+
+        h += '</div>';
+        c.insertAdjacentHTML('beforeend', h);
+    });
+    updateStats();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// R&D'S REMINDERS VIEW
+// ═══════════════════════════════════════════════════════════════
+if (typeof reminders === 'undefined') var reminders = {};
+try { var rs = localStorage.getItem('ukie-reminders'); if (rs) reminders = JSON.parse(rs); } catch(e) {}
+MONTHS.forEach(function(m) { if (!Array.isArray(reminders[m])) reminders[m] = []; });
+
+function saveReminders() {
+    cloudSave(); // reminders are included in the cloud payload
+}
+
+function renderReminders() {
+    var c = document.getElementById('calendarContainer');
+    c.innerHTML = '';
+
+    var h = '<div style="max-width:700px;margin:0 auto">';
+
+    MONTHS.forEach(function(monthKey) {
+        var items = reminders[monthKey] || [];
+
+        h += '<div class="rem-month">';
+        h += '<div class="rem-month-title">' + monthKey + '</div>';
+        h += '<ul class="rem-list">';
+
+        items.forEach(function(rem, idx) {
+            var doneClass = rem.done ? ' done' : '';
+            h += '<li class="rem-item' + doneClass + '">';
+            h += '<input type="checkbox" ' + (rem.done ? 'checked' : '') + ' onchange="toggleReminder(\'' + monthKey + '\',' + idx + ',this.checked)">';
+            h += '<input class="rem-text" type="text" value="' + esc(rem.text) + '" onblur="updateReminder(\'' + monthKey + '\',' + idx + ',this.value)" onkeydown="if(event.key===\'Enter\'){this.blur();addReminder(\'' + monthKey + '\')}">';
+            h += '<span class="rem-delete" onclick="deleteReminder(\'' + monthKey + '\',' + idx + ')" title="Remove">✕</span>';
+            h += '</li>';
+        });
+
+        h += '</ul>';
+        h += '<div class="rem-add" onclick="addReminder(\'' + monthKey + '\')">+ Add reminder</div>';
+        h += '</div>';
+    });
+
+    h += '</div>';
+    c.innerHTML = h;
+    updateStats();
+}
+
+function addReminder(monthKey) {
+    if (!reminders[monthKey]) reminders[monthKey] = [];
+    reminders[monthKey].push({ text: '', done: false });
+    saveReminders();
+    renderReminders();
+    // Focus the new input
+    var inputs = document.querySelectorAll('.rem-month:last-of-type .rem-text, .rem-text');
+    // Find inputs for this month
+    var allMonthSections = document.querySelectorAll('.rem-month');
+    allMonthSections.forEach(function(section) {
+        if (section.querySelector('.rem-month-title').textContent === monthKey) {
+            var remInputs = section.querySelectorAll('.rem-text');
+            if (remInputs.length) remInputs[remInputs.length - 1].focus();
+        }
+    });
+}
+
+function updateReminder(monthKey, idx, text) {
+    if (reminders[monthKey] && reminders[monthKey][idx] !== undefined) {
+        reminders[monthKey][idx].text = text;
+        saveReminders();
+    }
+}
+
+function toggleReminder(monthKey, idx, done) {
+    if (reminders[monthKey] && reminders[monthKey][idx] !== undefined) {
+        reminders[monthKey][idx].done = done;
+        saveReminders();
+        renderReminders();
+    }
+}
+
+function deleteReminder(monthKey, idx) {
+    if (reminders[monthKey]) {
+        reminders[monthKey].splice(idx, 1);
+        saveReminders();
+        renderReminders();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EDIT MODAL
+// ═══════════════════════════════════════════════════════════════
+var editTarget = { month: null, id: null };
+
+function editItem(month, id) {
+    editTarget = { month: month, id: id };
+    var item = data[month].find(function(i) { return i.id === id; });
+    if (!item) return;
+
+    document.getElementById('editModalTitle').textContent = item.title ? 'Edit: ' + item.title : 'New Title';
+    document.getElementById('editSpotifyUrl').value = item.spotifyUrl || '';
+    document.getElementById('editTitle').value = item.title || '';
+    document.getElementById('editAuthor').value = item.author || '';
+    document.getElementById('editNarrator').value = item.narrator || '';
+    document.getElementById('editPublisher').value = item.publisher || '';
+    document.getElementById('editStartDate').value = item.startDate || '';
+    document.getElementById('editEndDate').value = item.endDate || '';
+    document.getElementById('editStatus').value = item.status || 'planned';
+    document.getElementById('editNotes').value = item.notes || '';
+    document.getElementById('spotifyStatus').textContent = '';
+    document.getElementById('spotifyPreview').classList.remove('show');
+
+    // Category chips
+    var grid = document.getElementById('editCatGrid');
+    grid.innerHTML = '';
+    CATEGORIES.forEach(function(cat) {
+        var chip = document.createElement('div');
+        chip.className = 'modal-cat-chip' + (item.categories.indexOf(cat.value) !== -1 ? ' selected' : '');
+        chip.style.background = cat.color;
+        chip.style.color = cat.dark ? '#000' : '#fff';
+        chip.textContent = cat.label;
+        chip.dataset.value = cat.value;
+        chip.onclick = function() { this.classList.toggle('selected'); };
+        grid.appendChild(chip);
+    });
+
+    document.getElementById('editModal').classList.add('open');
+    setTimeout(function() { document.getElementById('editSpotifyUrl').focus(); }, 100);
+}
+
+function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
+
+function saveEdit() {
+    var item = data[editTarget.month].find(function(i) { return i.id === editTarget.id; });
+    if (!item) return;
+
+    item.spotifyUrl = document.getElementById('editSpotifyUrl').value.trim();
+    item.title = document.getElementById('editTitle').value.trim();
+    item.author = document.getElementById('editAuthor').value.trim();
+    item.narrator = document.getElementById('editNarrator').value.trim();
+    item.publisher = document.getElementById('editPublisher').value.trim();
+    item.startDate = document.getElementById('editStartDate').value.trim();
+    item.endDate = document.getElementById('editEndDate').value.trim();
+    // Keep legacy date field in sync for calendar view
+    if (item.startDate) {
+        var d = new Date(item.startDate + 'T00:00:00');
+        item.date = item.startDate; // store full ISO date
+    } else {
+        item.date = '';
+    }
+    item.status = document.getElementById('editStatus').value;
+    item.notes = document.getElementById('editNotes').value.trim();
+
+    // Categories from chips
+    item.categories = [];
+    document.querySelectorAll('#editCatGrid .modal-cat-chip.selected').forEach(function(chip) {
+        item.categories.push(chip.dataset.value);
+    });
+
+    // Auto-move to correct month if date changed
+    if (item.startDate) {
+        var sd = new Date(item.startDate + 'T00:00:00');
+        var MONTH_NAMES_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        var targetMonth = MONTH_NAMES_FULL[sd.getMonth()] + ' ' + sd.getFullYear();
+        if (targetMonth !== editTarget.month && MONTHS.indexOf(targetMonth) !== -1) {
+            // Remove from old month
+            data[editTarget.month] = data[editTarget.month].filter(function(i) { return i.id !== item.id; });
+            // Add to new month, sorted by date
+            data[targetMonth].push(item);
+            data[targetMonth].sort(function(a, b) {
+                var da = a.startDate || a.date || '';
+                var db = b.startDate || b.date || '';
+                return da.localeCompare(db);
+            });
+        }
+    }
+
+    save();
+    closeEdit();
+    setTimeout(render, 50);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPOTIFY FETCH
+// ═══════════════════════════════════════════════════════════════
+function fetchFromSpotify() {
+    var url = document.getElementById('editSpotifyUrl').value.trim();
+    if (!url || url.indexOf('spotify.com') === -1) {
+        document.getElementById('spotifyStatus').textContent = 'Enter a valid Spotify URL';
+        return;
+    }
+    var status = document.getElementById('spotifyStatus');
+    var preview = document.getElementById('spotifyPreview');
+    status.textContent = 'Fetching…';
+    preview.classList.remove('show');
+
+    fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(url))
+        .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+        .then(function(meta) {
+            // Auto-fill fields
+            if (meta.thumbnail_url) {
+                document.getElementById('editTitle').value = meta.title || '';
+                // Try to parse "Title - Author" or just use title
+                var item = data[editTarget.month].find(function(i) { return i.id === editTarget.id; });
+                if (item) item.cover = meta.thumbnail_url;
+            }
+            // Show preview
+            document.getElementById('spPreviewImg').src = meta.thumbnail_url || '';
+            document.getElementById('spPreviewTitle').textContent = meta.title || '';
+            document.getElementById('spPreviewSub').textContent = 'Cover image imported';
+            preview.classList.add('show');
+            status.textContent = 'Imported! Edit fields below as needed.';
+        })
+        .catch(function() {
+            status.textContent = 'Could not fetch. Check the URL.';
+        });
+}
+
+function copyShareLink() {
+    var url = window.location.href.split('#')[0];
+    if (binId) url += '#bin=' + binId;
+    navigator.clipboard.writeText(url).then(function() {
+        var btn = document.getElementById('shareLinkBtn');
+        btn.textContent = '✓ Link copied!';
+        setTimeout(function() { btn.textContent = '🔗 Copy Share Link'; }, 2000);
+    }).catch(function() {
+        prompt('Copy this link to share with your team:', url);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// JSON IMPORT / EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportData() {
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var u = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = u; a.download = 'ukie-content-tracker-2026.json'; a.click();
+    URL.revokeObjectURL(u);
+}
+function importDataFile() { document.getElementById('importFile').click(); }
+function handleFileImport(e) {
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            var imp = JSON.parse(evt.target.result);
+            MONTHS.forEach(function(m) { if (imp[m]) data[m] = imp[m]; });
+            save(); render(); alert('Imported!');
+        } catch(err) { alert('Invalid JSON'); }
+    };
+    reader.readAsText(file); e.target.value = '';
+}
+function clearAll() {
+    if (!confirm('Clear all content? Cannot be undone.')) return;
+    MONTHS.forEach(function(m) { data[m] = []; });
+    save(); render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTO-FETCH COVERS FROM SPOTIFY
+// ═══════════════════════════════════════════════════════════════
+function autoFetchCovers() {
+    var queue = [];
+    MONTHS.forEach(function(m) {
+        (data[m] || []).forEach(function(item) {
+            if (item.spotifyUrl && !item.cover) queue.push({ month: m, item: item });
+        });
+    });
+    if (queue.length === 0) return;
+
+    var delay = 0;
+    queue.forEach(function(entry) {
+        setTimeout(function() {
+            fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(entry.item.spotifyUrl))
+                .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+                .then(function(meta) {
+                    if (meta.thumbnail_url) {
+                        entry.item.cover = meta.thumbnail_url;
+                        save();
+                        render();
+                    }
+                })
+                .catch(function() {});
+        }, delay);
+        delay += 200; // stagger requests to avoid rate limits
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+render();
+autoFetchCovers();
+
+// Bootstrap cloud sync
+if (binId) {
+    cloudLoad(function() { render(); startPolling(); });
+} else {
+    createBin(function() { startPolling(); });
+}
+</script>
+
+</div><!-- end mainApp -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PASSWORD GATE
+// ═══════════════════════════════════════════════════════════════
+var PASS_HASH = 'c9b52789f99f88da86740e8e6b35a16e85e01215451188ee61f7afa3fafb0f61';
+
+async function sha256(text) {
+    var encoded = new TextEncoder().encode(text);
+    var buf = await crypto.subtle.digest('SHA-256', encoded);
+    return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+async function attemptLogin() {
+    var pw = document.getElementById('loginPassword').value;
+    var hash = await sha256(pw);
+    if (hash === PASS_HASH) {
+        sessionStorage.setItem('ukie-auth', '1');
+        showApp();
+    } else {
+        document.getElementById('loginError').textContent = 'Incorrect password';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginPassword').focus();
+    }
+}
+
+function showApp() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainApp').style.display = '';
+}
+
+// Auto-login if already authenticated this session
+if (sessionStorage.getItem('ukie-auth') === '1') {
+    showApp();
+} else {
+    setTimeout(function() { document.getElementById('loginPassword').focus(); }, 100);
+}
+</script>
+</body>
+</html>
