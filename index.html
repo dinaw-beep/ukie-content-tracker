@@ -1468,7 +1468,7 @@ render();
 
 // Bootstrap cloud sync, then fetch missing covers
 if (binId) {
-    cloudLoad(function() { seedDefaults(DEFAULT_Q3); seedDefaults(DEFAULT_Q4); sortAllMonths(); render(); autoFetchCovers(); startPolling(); });
+    cloudLoad(function() { seedDefaults(DEFAULT_Q3); seedDefaults(DEFAULT_Q4); sortAllMonths(); render(); cloudSave(); autoFetchCovers(); startPolling(); });
 } else {
     autoFetchCovers();
     createBin(function() { startPolling(); });
