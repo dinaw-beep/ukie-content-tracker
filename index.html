@@ -613,8 +613,16 @@ function seedDefaults(defaults) {
         if (data[m].length === 0) {
             data[m] = defaults[m];
         } else {
+            var existingIds = {};
+            data[m].forEach(function(item) { if (item.id) existingIds[item.id] = true; });
             var defaultMap = {};
-            defaults[m].forEach(function(d) { defaultMap[d.id] = d; });
+            defaults[m].forEach(function(d) {
+                defaultMap[d.id] = d;
+                // Add default items that don't exist yet
+                if (!existingIds[d.id]) {
+                    data[m].push(d);
+                }
+            });
             data[m].forEach(function(item) {
                 if (item.id && defaultMap[item.id] && (!item.categories || item.categories.length === 0)) {
                     item.categories = defaultMap[item.id].categories;
