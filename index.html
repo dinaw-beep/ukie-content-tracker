@@ -663,6 +663,7 @@ var binId = '';
         localStorage.setItem('ukie-bin-id', binId);
     } else {
         binId = localStorage.getItem('ukie-bin-id') || '';
+        if (binId) window.location.hash = 'bin=' + binId;
     }
 })();
 var syncStatus = 'offline';
