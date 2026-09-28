@@ -1276,7 +1276,7 @@ function editItem(month, id) {
     document.getElementById('editAuthor').value = item.author || '';
     document.getElementById('editNarrator').value = item.narrator || '';
     document.getElementById('editPublisher').value = item.publisher || '';
-    document.getElementById('editStartDate').value = item.startDate || '';
+    document.getElementById('editStartDate').value = item.startDate || item.date || '';
     document.getElementById('editEndDate').value = item.endDate || '';
     document.getElementById('editStatus').value = item.status || 'planned';
     document.getElementById('editNotes').value = item.notes || '';
